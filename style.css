@@ -172,7 +172,7 @@ nav ul li a {
     color: rgba(255,255,255,0.9);
     text-decoration: none;
     font-weight: 700;
-    padding: 10px 12px;
+    padding:  0;
     border-radius: 10px;
     transition: background 0.2s, color 0.2s, transform 0.2s;
 }
