@@ -118,7 +118,7 @@ h1 .linha:nth-child(3) { animation-delay: .16s; }
 .hero-sub { max-width: 46ch; font-size: 1.15rem; color: var(--creme-2); }
 .hero-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 
-.hero-arte svg { width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)); }
+.hero-arte svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)); }
 .carvao circle { fill: #2a1a14; stroke: var(--brasa); stroke-width: 3; animation: brilho 2.4s ease-in-out infinite alternate; }
 .carvao circle:nth-child(even) { animation-delay: -1.2s; }
 .fumaca path { stroke-dasharray: 14 12; animation: fumaca 3s linear infinite; }
