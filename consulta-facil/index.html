@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta Fácil — Protótipo</title>
+<style>
+:root{--navy:#12304a;--blue:#176b87;--ink:#172b3a;--muted:#4d5d69;--line:#cfdae1;--bg:#f3f7fa;--danger:#9e2a2b;--dangerbg:#fff0ef;--green:#176b46}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink);font-size:18px;line-height:1.5}
+header{background:var(--navy);color:#fff;padding:18px max(20px,calc((100% - 980px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-size:24px;font-weight:800}.brand span{color:#8de0d5}.tag{font-size:16px;color:#dbe9f2}
+main{max-width:980px;margin:24px auto;padding:0 18px}
+.stepinfo{font-weight:700;color:var(--navy);margin:0 0 8px}
+.progress{display:flex;gap:7px;margin:0 0 20px}.step{height:8px;flex:1;background:#cdd8e0;border-radius:8px}.step.on{background:var(--blue)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,36px);box-shadow:0 8px 26px #18384d0b}
+h1{font-size:clamp(26px,4vw,34px);line-height:1.2;margin:0 0 8px;color:var(--navy)}
+p{margin:8px 0 16px}.muted{color:var(--muted)}
+.field{margin:18px 0}.field label{display:block;font-weight:700;margin-bottom:7px}
+select,input[type=text]{width:100%;padding:14px;border:2px solid #7f95a4;border-radius:10px;font-size:18px;background:#fff;color:var(--ink)}
+input::placeholder{color:#58687a;opacity:1}
+.check{display:flex;gap:12px;align-items:flex-start;margin:18px 0;font-weight:700}
+.check input{width:26px;height:26px;margin-top:2px;flex:none}
+button{border:0;border-radius:10px;padding:14px 20px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
+button:focus,select:focus,input:focus{outline:3px solid #f2bd4b;outline-offset:2px}
+button:disabled{background:#d5dde3;color:#4d5d69;cursor:not-allowed}
+.primary{background:var(--blue);color:#fff}.secondary{background:#eaf1f5;color:var(--navy);border:1px solid #9fb3c0}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.slotlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:20px 0}
+.slot{background:#fff;border:2px solid #7f95a4;color:var(--navy);padding:16px;text-align:left}
+.slot.selected{border-color:var(--blue);background:#e3f3f6;box-shadow:inset 0 0 0 2px var(--blue)}
+.slot:disabled{background:#eceff2;border-style:dashed}
+.badge{display:inline-block;margin-top:6px;font-size:16px;font-weight:700;color:#7a2121}
+.note{padding:14px 16px;border-radius:10px;background:#e9f3f7;border-left:6px solid var(--blue);margin:18px 0}
+.alert{background:var(--dangerbg);border:1px solid #e2a29d;border-left:8px solid var(--danger);padding:20px;border-radius:12px;margin:18px 0;font-size:20px}
+.alert p{font-size:18px;margin:10px 0 0}
+.success{background:#eaf7ef;border:1px solid #9fcfb3;border-left:8px solid var(--green);padding:18px;border-radius:12px;margin:18px 0}
+.summary{background:#f5f8fa;border:1px solid var(--line);padding:16px;border-radius:12px}.summary div{margin:5px 0}
+.error{color:var(--danger);font-weight:700;margin:6px 0 0}
+.hidden{display:none!important}
+footer{max-width:980px;margin:18px auto 35px;padding:0 18px;color:var(--muted);font-size:16px}
+@media(max-width:600px){header{align-items:flex-start;flex-direction:column}.actions button{width:100%}.panel{border-radius:13px}}
+</style></head>
+<body>
+<header><div><div class="brand">Consulta <span>Fácil</span></div><div class="tag">Agendamento simples na rede pública de saúde</div></div><div class="tag">Protótipo acadêmico • Vale Verde</div></header>
+<main>
+<p class="stepinfo" id="stepinfo" aria-live="polite">Passo 1 de 5: seus dados</p>
+<div class="progress" aria-hidden="true"><div class="step on"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
+
+<section class="panel" id="welcome">
+<h1>Agende sua consulta sem sair de casa</h1>
+<p class="muted">Escolha a unidade, encontre um horário e receba seu comprovante. Você não precisa ter e-mail.</p>
+<div class="field"><label for="cpf" id="cpfLabel">Seu CPF</label><input type="text" id="cpf" placeholder="Digite o CPF (neste protótipo, qualquer número)" inputmode="numeric" autocomplete="off"><div class="error hidden" id="cpfError" role="alert">Digite o CPF para continuar.</div></div>
+<div class="field"><label for="phone">Celular (opcional)</label><input type="text" id="phone" placeholder="(00) 00000-0000" inputmode="tel" autocomplete="off"></div>
+<label class="check"><input type="checkbox" id="agent" onchange="toggleAgent()"> <span>Sou agente de saúde e estou agendando em nome do paciente</span></label>
+<div class="actions"><button class="primary" onclick="start()">Começar agendamento</button></div>
+</section>
+
+<section class="panel hidden" id="choose">
+<h1>Onde deseja ser atendido?</h1><p class="muted">Escolha a UBS e a especialidade.</p>
+<div class="field"><label for="ubs">Unidade Básica de Saúde (UBS)</label><select id="ubs"><option>UBS Central</option><option>UBS Jardim das Flores</option><option>UBS Novo Horizonte</option></select></div>
+<div class="field"><label for="specialty">Especialidade</label><select id="specialty"><option>Pediatria</option><option>Clínica geral</option><option>Ginecologia</option><option>Odontologia</option></select></div>
+<div class="actions"><button class="secondary" onclick="go('welcome')">Voltar</button><button class="primary" onclick="go('times')">Ver horários disponíveis</button></div>
+</section>
+
+<section class="panel hidden" id="times">
+<h1>Escolha um horário</h1>
+<div class="summary"><div><strong>UBS:</strong> <span id="showUbs"></span></div><div><strong>Especialidade:</strong> <span id="showSpec"></span></div></div>
+<div class="slotlist" id="slots"></div>
+<div class="note">Toque em um horário para escolher. <strong>Para testar a exceção:</strong> escolha as 10:00, a última vaga, que outra pessoa vai ocupar antes de você.</div>
+<div class="actions"><button class="secondary" onclick="go('choose')">Voltar</button><button class="primary" id="continueBtn" onclick="go('confirm')" disabled>Continuar</button></div>
+<div class="muted" id="pickHint">Escolha um horário para continuar.</div>
+</section>
+
+<section class="panel hidden" id="confirm">
+<h1>Confirme seus dados</h1><p>Confira as informações antes de concluir.</p>
+<div class="summary"><div><strong>CPF:</strong> <span id="confirmCpf"></span></div><div id="confirmAgentRow" class="hidden"><strong>Agendado por:</strong> agente de saúde, em nome do paciente</div><div><strong>UBS:</strong> <span id="confirmUbs"></span></div><div><strong>Especialidade:</strong> <span id="confirmSpec"></span></div><div><strong>Data e horário:</strong> <span id="confirmTime"></span></div></div>
+<div class="note">Ao confirmar, o sistema verifica e reserva a vaga numa única operação. Se outra pessoa já tiver ocupado a vaga, nenhum agendamento é criado.</div>
+<div class="actions"><button class="secondary" onclick="go('times')">Voltar</button><button class="primary" onclick="book()">Confirmar agendamento</button></div>
+</section>
+
+<section class="panel hidden" id="receipt">
+<h1>Consulta agendada!</h1><div class="success"><strong>Seu horário foi reservado.</strong><br>Anote o protocolo ou tire uma foto desta tela.</div>
+<div class="summary"><div><strong>Protocolo:</strong> CF-2026-00125</div><div><strong>UBS:</strong> <span id="receiptUbs"></span></div><div><strong>Especialidade:</strong> <span id="receiptSpec"></span></div><div><strong>Data e horário:</strong> <span id="receiptTime"></span></div></div>
+<p class="muted">O comprovante aparece aqui, mesmo que o SMS falhe. Se você informou o celular, enviaremos um lembrete em segundo plano.</p>
+<div class="actions"><button class="primary" onclick="restart()">Finalizar</button></div>
+</section>
+
+<section class="panel hidden" id="exception" role="alert">
+<h1>Não foi possível concluir</h1>
+<div class="alert"><strong>a vaga acabou de ser ocupada; veja outros horários</strong><p>Outra pessoa confirmou essa vaga primeiro. Seu agendamento não foi criado.</p></div>
+<p><strong>Importante:</strong> você não receberá SMS de confirmação, pois não existe consulta reservada em seu nome.</p>
+<div class="actions"><button class="secondary" onclick="go('choose')">Trocar UBS ou especialidade</button><button class="primary" onclick="go('times')">Ver outros horários</button></div>
+</section>
+</main>
+<footer>Protótipo navegável para testar a jornada do paciente. Dados, datas e protocolo são fictícios; nenhum agendamento real é feito.</footer>
+<script>
+const SLOTS=[{t:'08:00'},{t:'09:30'},{t:'10:00',last:true}];
+let selected=null, taken=false;
+const $=id=>document.getElementById(id);
+const labels={welcome:'Passo 1 de 5: seus dados',choose:'Passo 2 de 5: UBS e especialidade',times:'Passo 3 de 5: horário',confirm:'Passo 4 de 5: confirmação',receipt:'Passo 5 de 5: comprovante',exception:'Não foi possível concluir o agendamento'};
+const order=['welcome','choose','times','confirm','receipt'];
+function renderSlots(){
+ $('slots').innerHTML='';
+ SLOTS.forEach(s=>{
+  const b=document.createElement('button');b.className='slot'+(selected===s.t?' selected':'');
+  const gone=s.last&&taken;
+  b.disabled=gone;
+  b.innerHTML='Seg, 23/11<br><strong>'+s.t+'</strong>'+(gone?'<br><span class="badge">Ocupado</span>':(s.last?'<br><span class="badge">Última vaga</span>':''));
+  b.setAttribute('aria-pressed',selected===s.t?'true':'false');
+  b.onclick=()=>{selected=s.t;renderSlots();};
+  $('slots').appendChild(b);
+ });
+ $('continueBtn').disabled=!selected;
+ $('pickHint').classList.toggle('hidden',!!selected);
+}
+function maskCpf(v){const d=v.replace(/\D/g,'');return d.length>=2?'***.***.***-'+d.slice(-2):'(informado)';}
+function toggleAgent(){$('cpfLabel').textContent=$('agent').checked?'CPF do paciente':'Seu CPF';}
+function start(){
+ if(!$('cpf').value.trim()){$('cpfError').classList.remove('hidden');$('cpf').focus();return;}
+ $('cpfError').classList.add('hidden');go('choose');
+}
+function go(id){
+ document.querySelectorAll('main .panel').forEach(p=>p.classList.add('hidden'));
+ $(id).classList.remove('hidden');
+ $('stepinfo').textContent=labels[id];
+ const n=id==='exception'?2:order.indexOf(id);
+ document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('on',i<=n));
+ if(id==='times'){$('showUbs').textContent=$('ubs').value;$('showSpec').textContent=$('specialty').value;renderSlots();}
+ if(id==='confirm'){$('confirmCpf').textContent=maskCpf($('cpf').value);$('confirmAgentRow').classList.toggle('hidden',!$('agent').checked);$('confirmUbs').textContent=$('ubs').value;$('confirmSpec').textContent=$('specialty').value;$('confirmTime').textContent='Seg, 23/11/2026, '+selected;}
+ window.scrollTo(0,0);
+}
+function book(){
+ const s=SLOTS.find(x=>x.t===selected);
+ if(s&&s.last){taken=true;selected=null;go('exception');return;}
+ $('receiptUbs').textContent=$('ubs').value;$('receiptSpec').textContent=$('specialty').value;$('receiptTime').textContent='Seg, 23/11/2026, '+selected;
+ go('receipt');
+}
+function restart(){selected=null;taken=false;$('cpf').value='';$('phone').value='';$('agent').checked=false;toggleAgent();go('welcome');}
+</script></body></html>
